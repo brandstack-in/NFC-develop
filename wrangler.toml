@@ -2,4 +2,5 @@ name = 'nfc-public-deploy'
 main = "index.js"
 compatibility_date = "2024-12-01"
 workers_dev = true
-
+id = "6d4adf0217c148b0bb17fecb17da9bef"
+preview_id = "6d4adf0217c148b0bb17fecb17da9bef"
