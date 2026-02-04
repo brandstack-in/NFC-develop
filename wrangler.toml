@@ -3,10 +3,6 @@ main = "index.js"
 compatibility_date = "2024-12-01"
 workers_dev = true
 
-[[kv_namespaces]]
-binding = "NFC_USERS"
-id = "8e921f14d95a41ae94a808a5e3245abd"
-preview_id = "8e921f14d95a41ae94a808a5e3245abd"
 
 [[kv_namespaces]]
 binding = "DEVELOP_USERS"
