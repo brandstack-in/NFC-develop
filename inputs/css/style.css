@@ -1,0 +1,152 @@
+/* Basic Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Montserrat', sans-serif;
+  background-color: #f8f9fa;
+  color: #333;
+  line-height: 1.6;
+}
+
+.container {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 20px;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.header h1 {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  color: #222;
+  margin-bottom: 10px;
+}
+
+.header p {
+  color: #555;
+  font-size: 1.1rem;
+}
+
+/* Form Card */
+.form-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px 30px;
+  margin-bottom: 25px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.3rem;
+  margin-bottom: 15px;
+  color: #444;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+.form-group input,
+.form-group textarea {
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  border-color: #6c63ff;
+  outline: none;
+}
+
+.input-row {
+  display: flex;
+  gap: 15px;
+}
+
+.input-row .form-group {
+  flex: 1;
+}
+
+/* File Inputs */
+.file-input-wrapper {
+  position: relative;
+}
+
+.file-input-label {
+  display: inline-block;
+  padding: 10px 15px;
+  background: #6c63ff;
+  color: #fff;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.file-input-wrapper input[type="file"] {
+  display: none;
+}
+
+.preview-image {
+  margin-top: 10px;
+  max-height: 120px;
+  border-radius: 8px;
+}
+
+/* Submit Button */
+.submit-btn {
+  width: 100%;
+  padding: 12px 0;
+  background: #6c63ff;
+  color: #fff;
+  font-size: 1.1rem;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.submit-btn:hover {
+  background: #574bff;
+}
+
+/* Footer */
+.footer {
+  text-align: center;
+  margin-top: 30px;
+  color: #777;
+}
+
+.footer a {
+  color: #6c63ff;
+  text-decoration: none;
+}
+
+.footer a:hover {
+  text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .input-row {
+    flex-direction: column;
+  }
+}
