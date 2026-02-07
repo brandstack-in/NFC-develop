@@ -506,52 +506,56 @@
     </div>
   </div>
 
-  <script>
+ <script>
   const API_URL = "https://nfc-develop.data-brandstack.workers.dev/api/update";
   const ADMIN_TOKEN = "3f7c1e9a-6c2b-4b5e-9d44-91c2c0a6b9fd";
-    document.getElementById('photo').addEventListener('change', function(e) {
-      const file = e.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          const preview = document.getElementById('photo-preview');
-          preview.src = e.target.result;
-          preview.style.display = 'block';
-        };
-        reader.readAsDataURL(file);
+
+  document.getElementById('photo').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const preview = document.getElementById('photo-preview');
+        preview.src = e.target.result;
+        preview.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  document.getElementById('nfc-form').addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+    const submitBtn = this.querySelector('.submit-btn');
+
+    submitBtn.textContent = 'Updating...';
+    submitBtn.disabled = true;
+
+    try {
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${ADMIN_TOKEN}`
+        },
+        body: formData
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || 'Update failed');
       }
-    });
 
-    // Form submission handler (for Cloudflare Worker integration)
-    document.getElementById('nfc-form').addEventListener('submit', async function(e) {
-      e.preventDefault();
-      
-      const formData = new FormData(this);
-      const submitBtn = this.querySelector('.submit-btn');
-      
-      submitBtn.textContent = 'Updating...';
-      submitBtn.disabled = true;
-
-      try {
-        const response = await fetch('/api/update', {
-          method: 'POST',
-          body: formData
-        });
-
-        if (response.ok) {
-          alert('✅ Your NFC card has been updated successfully!');
-          // Optionally redirect to the card preview
-          // window.location.href = '/' + formData.get('card_id');
-        } else {
-          throw new Error('Update failed');
-        }
-      } catch (error) {
-        alert('❌ Failed to update. Please try again.');
-      } finally {
-        submitBtn.textContent = '💾 Save & Update Card';
-        submitBtn.disabled = false;
-      }
-    });
-  </script>
+      alert('✅ Your NFC card has been updated successfully!');
+    } catch (err) {
+      console.error(err);
+      alert('❌ Failed to update card. Please try again.');
+    } finally {
+      submitBtn.textContent = '💾 Save & Update Card';
+      submitBtn.disabled = false;
+    }
+  });
+</script>
 </body>
 </html>
