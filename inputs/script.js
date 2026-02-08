@@ -36,13 +36,15 @@ document.addEventListener('DOMContentLoaded', function() {
   form.addEventListener('submit', async function(e) {
     e.preventDefault();
 
-    const cardId = document.getElementById('card_id').value.trim();
+    const cardIdInput = form.querySelector('input[name="card_id"]');
+    const cardId = cardIdInput ? cardIdInput.value.trim() : '';
     if (!cardId) {
       showNotification('Please enter a Card ID', 'error');
       return;
     }
 
-    const name = document.getElementById('name').value.trim();
+    const nameInput = form.querySelector('input[name="name"]');
+    const name = nameInput ? nameInput.value.trim() : '';
     if (!name) {
       showNotification('Please enter your name', 'error');
       return;
