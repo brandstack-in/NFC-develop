@@ -1,5 +1,3 @@
-// Premium NFC Card - Form Handler Script
-
 document.addEventListener('DOMContentLoaded', function () {
   const form = document.getElementById('nfc-form');
   const photoInput = document.getElementById('photo');
@@ -8,52 +6,43 @@ document.addEventListener('DOMContentLoaded', function () {
   const logoPreview = document.getElementById('logo-preview');
   const submitBtn = document.querySelector('.submit-btn');
 
-  // 🔴 CHANGE THIS
   const API_BASE = 'https://nfc-develop.data-brandstack.workers.dev';
 
-  /* ================= FILE PREVIEW ================= */
+  // ===== FILE PREVIEW & BASE64 =====
+  async function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
 
-  photoInput?.addEventListener('change', (e) => {
-    handleFilePreview(e.target, photoPreview);
-  });
-
-  logoInput?.addEventListener('change', (e) => {
-    handleFilePreview(e.target, logoPreview);
-  });
-
-  function handleFilePreview(input, previewElement) {
+  async function handleFilePreview(input, previewElement) {
     const file = input.files?.[0];
     if (!file) {
       previewElement.style.display = 'none';
       previewElement.src = '';
-      return;
+      return null;
     }
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      previewElement.src = e.target.result;
-      previewElement.style.display = 'block';
-    };
-    reader.readAsDataURL(file);
+    const base64 = await fileToBase64(file);
+    previewElement.src = base64;
+    previewElement.style.display = 'block';
+    return base64;
   }
 
-  /* ================= FORM SUBMIT ================= */
+  photoInput?.addEventListener('change', () => handleFilePreview(photoInput, photoPreview));
+  logoInput?.addEventListener('change', () => handleFilePreview(logoInput, logoPreview));
 
+  // ===== FORM SUBMIT =====
   form.addEventListener('submit', async function (e) {
     e.preventDefault();
 
     const cardId = form.card_id?.value.trim();
     const name = form.name?.value.trim();
 
-    if (!cardId) {
-      showNotification('Please enter a Card ID', 'error');
-      return;
-    }
-
-    if (!name) {
-      showNotification('Please enter your name', 'error');
-      return;
-    }
+    if (!cardId) return showNotification('Please enter a Card ID', 'error');
+    if (!name) return showNotification('Please enter your name', 'error');
 
     submitBtn.disabled = true;
     submitBtn.textContent = '⏳ Saving...';
@@ -61,106 +50,85 @@ document.addEventListener('DOMContentLoaded', function () {
     try {
       const formData = new FormData(form);
 
+      // Add Base64 images
+      if (photoInput.files?.[0]) {
+        formData.set('photo', await fileToBase64(photoInput.files[0]));
+      }
+      if (logoInput.files?.[0]) {
+        formData.set('logo', await fileToBase64(logoInput.files[0]));
+      }
+
       const response = await fetch(`${API_BASE}/api/update`, {
         method: 'POST',
         body: formData
       });
 
       const contentType = response.headers.get('content-type');
-
-      if (!contentType || !contentType.includes('application/json')) {
+      if (!contentType?.includes('application/json')) {
         const text = await response.text();
-        throw new Error(
-          'Invalid server response:\n' + text.slice(0, 150)
-        );
+        throw new Error('Invalid server response:\n' + text.slice(0, 150));
       }
 
       const result = await response.json();
-
-      if (!response.ok || !result.success) {
-        throw new Error(result.error || 'Failed to update card');
-      }
+      if (!response.ok || !result.success) throw new Error(result.error || 'Failed to update card');
 
       showNotification('✅ Card updated successfully!', 'success');
 
+      // reset form previews
+      photoPreview.style.display = logoPreview.style.display = 'none';
+      photoPreview.src = logoPreview.src = '';
+
       setTimeout(() => {
         const cardUrl = `${API_BASE}/${cardId}`;
-        if (confirm('Card updated!\n\nView your card now?')) {
-          window.open(cardUrl, '_blank');
-        }
+        if (confirm('Card updated!\n\nView your card now?')) window.open(cardUrl, '_blank');
       }, 800);
 
-    } catch (error) {
-      console.error('Submit error:', error);
-      showNotification(`❌ ${error.message}`, 'error');
+    } catch (err) {
+      console.error(err);
+      showNotification('❌ ' + err.message, 'error');
     } finally {
       submitBtn.disabled = false;
       submitBtn.textContent = '💾 Save & Update Card';
     }
   });
 
-  /* ================= NOTIFICATIONS ================= */
-
+  // ===== NOTIFICATIONS =====
   function showNotification(message, type) {
     document.querySelector('.notification')?.remove();
-
-    const notification = document.createElement('div');
-    notification.className = `notification notification-${type}`;
-    notification.textContent = message;
-
-    notification.style.cssText = `
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      padding: 15px 25px;
-      border-radius: 10px;
-      font-weight: 500;
-      z-index: 9999;
+    const n = document.createElement('div');
+    n.className = 'notification notification-' + type;
+    n.textContent = message;
+    n.style.cssText = `
+      position: fixed; top: 20px; right: 20px;
+      padding: 15px 25px; border-radius: 10px;
+      font-weight: 500; z-index: 9999;
       max-width: 90%;
-      background: ${type === 'success' ? '#10b981' : '#ef4444'};
-      color: #fff;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      background: ${type==='success'?'#10b981':'#ef4444'}; color:#fff;
+      box-shadow:0 4px 15px rgba(0,0,0,0.2);
       animation: slideIn 0.3s ease;
     `;
-
-    document.body.appendChild(notification);
-
-    setTimeout(() => {
-      notification.style.animation = 'slideOut 0.3s ease';
-      setTimeout(() => notification.remove(), 300);
-    }, 5000);
+    document.body.appendChild(n);
+    setTimeout(() => { n.style.animation = 'slideOut 0.3s ease'; setTimeout(() => n.remove(),300); }, 5000);
   }
 
-  /* ================= HELPERS ================= */
+  // ===== HELPERS =====
+  document.querySelectorAll('input[type="tel"]').forEach(i => i.addEventListener('input', () => {
+    i.value = i.value.replace(/[^\d+\-\s()]/g,'');
+  }));
+  document.querySelectorAll('input[type="url"]').forEach(i => i.addEventListener('blur', () => {
+    if (i.value && !/^https?:\/\//i.test(i.value)) i.value = 'https://' + i.value;
+  }));
 
-  // Phone formatting
-  document.querySelectorAll('input[type="tel"]').forEach((input) => {
-    input.addEventListener('input', function () {
-      this.value = this.value.replace(/[^\d+\-\s()]/g, '');
-    });
-  });
+  // ===== MODAL FIXES =====
+  document.querySelectorAll('.modal-close').forEach(x =>
+    x.addEventListener('click', () => document.querySelectorAll('.modal-toggle').forEach(c=>c.checked=false))
+  );
 
-  // URL normalization
-  document.querySelectorAll('input[type="url"]').forEach((input) => {
-    input.addEventListener('blur', function () {
-      const v = this.value.trim();
-      if (v && !/^https?:\/\//i.test(v)) {
-        this.value = 'https://' + v;
-      }
-    });
-  });
-
-  // Animations
+  // ===== ANIMATION =====
   const style = document.createElement('style');
   style.textContent = `
-    @keyframes slideIn {
-      from { transform: translateX(100%); opacity: 0; }
-      to { transform: translateX(0); opacity: 1; }
-    }
-    @keyframes slideOut {
-      from { transform: translateX(0); opacity: 1; }
-      to { transform: translateX(100%); opacity: 0; }
-    }
+    @keyframes slideIn { from{transform:translateX(100%);opacity:0;} to{transform:translateX(0);opacity:1;} }
+    @keyframes slideOut { from{transform:translateX(0);opacity:1;} to{transform:translateX(100%);opacity:0;} }
   `;
   document.head.appendChild(style);
 });
