@@ -74,13 +74,24 @@ document.addEventListener('DOMContentLoaded', function () {
 
       showNotification('✅ Card updated successfully!', 'success');
 
-      // reset form previews
+      // Clear previews
       photoPreview.style.display = logoPreview.style.display = 'none';
       photoPreview.src = logoPreview.src = '';
 
+      // Prompt for view, WhatsApp, or VCF
       setTimeout(() => {
         const cardUrl = `${API_BASE}/${cardId}`;
-        if (confirm('Card updated!\n\nView your card now?')) window.open(cardUrl, '_blank');
+        const action = prompt('Card updated!\n\nEnter "view" to open, "vcf" to download VCF, "wa" to share on WhatsApp:', 'view');
+
+        if (!action) return;
+
+        if (action.toLowerCase() === 'view') {
+          window.open(cardUrl, '_blank');
+        } else if (action.toLowerCase() === 'vcf') {
+          downloadVCF(formData);
+        } else if (action.toLowerCase() === 'wa') {
+          shareWhatsApp(cardUrl);
+        }
       }, 800);
 
     } catch (err) {
@@ -115,6 +126,7 @@ document.addEventListener('DOMContentLoaded', function () {
   document.querySelectorAll('input[type="tel"]').forEach(i => i.addEventListener('input', () => {
     i.value = i.value.replace(/[^\d+\-\s()]/g,'');
   }));
+
   document.querySelectorAll('input[type="url"]').forEach(i => i.addEventListener('blur', () => {
     if (i.value && !/^https?:\/\//i.test(i.value)) i.value = 'https://' + i.value;
   }));
@@ -131,4 +143,39 @@ document.addEventListener('DOMContentLoaded', function () {
     @keyframes slideOut { from{transform:translateX(0);opacity:1;} to{transform:translateX(100%);opacity:0;} }
   `;
   document.head.appendChild(style);
+
+  // ===== VCF DOWNLOAD =====
+  function downloadVCF(formData) {
+    const name = formData.get('name') || '';
+    const phone = formData.get('phone') || '';
+    const email = formData.get('email') || '';
+    const company = formData.get('company') || '';
+    const title = formData.get('title') || '';
+
+    const vcf = `
+BEGIN:VCARD
+VERSION:3.0
+FN:${name}
+ORG:${company}
+TITLE:${title}
+TEL;TYPE=CELL:${phone}
+EMAIL;TYPE=INTERNET:${email}
+END:VCARD
+`.trim();
+
+    const blob = new Blob([vcf], { type: 'text/vcard' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `${name.replace(/\s+/g,'_')}.vcf`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  }
+
+  // ===== WHATSAPP SHARE =====
+  function shareWhatsApp(url) {
+    const waUrl = `https://wa.me/?text=${encodeURIComponent('Check out my NFC card: ' + url)}`;
+    window.open(waUrl, '_blank');
+  }
+
 });
