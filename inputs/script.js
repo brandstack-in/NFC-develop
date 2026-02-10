@@ -1,6 +1,6 @@
 // Premium NFC Card - Form Handler Script
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
   const form = document.getElementById('nfc-form');
   const photoInput = document.getElementById('photo');
   const logoInput = document.getElementById('logo');
@@ -8,95 +8,98 @@ document.addEventListener('DOMContentLoaded', function() {
   const logoPreview = document.getElementById('logo-preview');
   const submitBtn = document.querySelector('.submit-btn');
 
-  // File preview handlers
-  photoInput.addEventListener('change', function(e) {
+  // 🔴 CHANGE THIS TO YOUR REAL CLOUDFLARE WORKER URL
+  const API_BASE = 'https://nfc-develop.data-brandstack.workers.dev';
+
+  /* ================= FILE PREVIEWS ================= */
+
+  photoInput?.addEventListener('change', (e) => {
     handleFilePreview(e.target, photoPreview);
   });
 
-  logoInput.addEventListener('change', function(e) {
+  logoInput?.addEventListener('change', (e) => {
     handleFilePreview(e.target, logoPreview);
   });
 
   function handleFilePreview(input, previewElement) {
-    const file = input.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        previewElement.src = e.target.result;
-        previewElement.style.display = 'block';
-      };
-      reader.readAsDataURL(file);
-    } else {
+    const file = input.files?.[0];
+    if (!file) {
       previewElement.style.display = 'none';
       previewElement.src = '';
+      return;
     }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      previewElement.src = e.target.result;
+      previewElement.style.display = 'block';
+    };
+    reader.readAsDataURL(file);
   }
 
-  // Form submission handler
-  form.addEventListener('submit', async function(e) {
+  /* ================= FORM SUBMIT ================= */
+
+  form.addEventListener('submit', async function (e) {
     e.preventDefault();
 
-    const cardIdInput = form.querySelector('input[name="card_id"]');
-    const cardId = cardIdInput ? cardIdInput.value.trim() : '';
+    const cardId = form.card_id?.value.trim();
+    const name = form.name?.value.trim();
+
     if (!cardId) {
       showNotification('Please enter a Card ID', 'error');
       return;
     }
 
-    const nameInput = form.querySelector('input[name="name"]');
-    const name = nameInput ? nameInput.value.trim() : '';
     if (!name) {
       showNotification('Please enter your name', 'error');
       return;
     }
 
-    // Disable button and show loading state
     submitBtn.disabled = true;
     submitBtn.textContent = '⏳ Saving...';
 
     try {
       const formData = new FormData(form);
-      
-      // Send to API
-      const response = await fetch('/api/update', {
+
+      const response = await fetch(`${API_BASE}/api/update`, {
         method: 'POST',
-        body: formData
+        body: formData,
       });
 
       const result = await response.json();
 
-      if (response.ok && result.success) {
-        showNotification('✅ Card updated successfully!', 'success');
-        
-        // Show link to view card
-        const cardUrl = `/${cardId}`;
-        setTimeout(() => {
-          if (confirm(`Card updated! View your card at ${window.location.origin}${cardUrl}?`)) {
-            window.open(cardUrl, '_blank');
-          }
-        }, 1000);
-      } else {
+      if (!response.ok || !result.success) {
         throw new Error(result.error || 'Failed to update card');
       }
-    } catch (error) {
-      console.error('Submit error:', error);
-      showNotification(`❌ Error: ${error.message}`, 'error');
+
+      showNotification('✅ Card updated successfully!', 'success');
+
+      setTimeout(() => {
+        const cardUrl = `${API_BASE}/${cardId}`;
+        if (confirm(`Card updated!\n\nView your card now?`)) {
+          window.open(cardUrl, '_blank');
+        }
+      }, 800);
+
+    } catch (err) {
+      console.error(err);
+      showNotification(`❌ ${err.message}`, 'error');
     } finally {
       submitBtn.disabled = false;
       submitBtn.textContent = '💾 Save & Update Card';
     }
   });
 
-  // Notification helper
-  function showNotification(message, type) {
-    // Remove existing notification
-    const existing = document.querySelector('.notification');
-    if (existing) existing.remove();
+  /* ================= NOTIFICATIONS ================= */
 
-    const notification = document.createElement('div');
-    notification.className = `notification notification-${type}`;
-    notification.textContent = message;
-    notification.style.cssText = `
+  function showNotification(message, type) {
+    document.querySelector('.notification')?.remove();
+
+    const n = document.createElement('div');
+    n.className = `notification notification-${type}`;
+    n.textContent = message;
+
+    n.style.cssText = `
       position: fixed;
       top: 20px;
       right: 20px;
@@ -104,24 +107,41 @@ document.addEventListener('DOMContentLoaded', function() {
       border-radius: 10px;
       font-weight: 500;
       z-index: 9999;
-      animation: slideIn 0.3s ease;
       max-width: 90%;
+      background: ${type === 'success' ? '#10b981' : '#ef4444'};
+      color: #fff;
       box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-      ${type === 'success' 
-        ? 'background: #10b981; color: white;' 
-        : 'background: #ef4444; color: white;'}
+      animation: slideIn 0.3s ease;
     `;
 
-    document.body.appendChild(notification);
+    document.body.appendChild(n);
 
-    // Auto remove after 5 seconds
     setTimeout(() => {
-      notification.style.animation = 'slideOut 0.3s ease';
-      setTimeout(() => notification.remove(), 300);
+      n.style.animation = 'slideOut 0.3s ease';
+      setTimeout(() => n.remove(), 300);
     }, 5000);
   }
 
-  // Add animation styles
+  /* ================= HELPERS ================= */
+
+  // Auto-format phone inputs
+  document.querySelectorAll('input[type="tel"]').forEach((input) => {
+    input.addEventListener('input', function () {
+      this.value = this.value.replace(/[^\d+\-\s()]/g, '');
+    });
+  });
+
+  // Auto-fix URLs
+  document.querySelectorAll('input[type="url"]').forEach((input) => {
+    input.addEventListener('blur', function () {
+      const v = this.value.trim();
+      if (v && !/^https?:\/\//i.test(v)) {
+        this.value = 'https://' + v;
+      }
+    });
+  });
+
+  // Inject animations
   const style = document.createElement('style');
   style.textContent = `
     @keyframes slideIn {
@@ -134,24 +154,4 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   `;
   document.head.appendChild(style);
-
-  // Auto-format phone numbers
-  const phoneInputs = document.querySelectorAll('input[type="tel"]');
-  phoneInputs.forEach(input => {
-    input.addEventListener('input', function(e) {
-      // Allow only numbers, +, -, spaces, and parentheses
-      this.value = this.value.replace(/[^\d+\-\s()]/g, '');
-    });
-  });
-
-  // URL validation helper for social links
-  const urlInputs = document.querySelectorAll('input[type="url"]');
-  urlInputs.forEach(input => {
-    input.addEventListener('blur', function() {
-      const value = this.value.trim();
-      if (value && !value.startsWith('http://') && !value.startsWith('https://')) {
-        this.value = 'https://' + value;
-      }
-    });
-  });
 });
