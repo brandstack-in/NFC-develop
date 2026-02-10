@@ -3,14 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{{NAME}} | Premium NFC Card</title>
-  <meta name="description" content="{{TITLE}} at {{COMPANY}} - Premium Digital NFC Business Card" />
-  <meta name="author" content="{{COMPANY}}" />
+  <title>Premium NFC Card</title>
+  <meta name="description" content="Premium Digital NFC Business Card" />
+  <meta name="author" content="Company" />
   <meta name="theme-color" content="#0f1419" />
-
-  <meta property="og:title" content="{{NAME}} | Premium NFC Card" />
-  <meta property="og:description" content="{{TITLE}} at {{COMPANY}} - Connect with luxury and elegance" />
-  <meta property="og:type" content="website" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -21,66 +17,45 @@
 <body>
   <div class="container">
     <div class="card">
-      <!-- Profile Header -->
       <div class="profile-header">
         <div class="avatar-wrapper">
           <div class="avatar" id="avatar">
-            <i class="fas fa-user"></i>
+            <img id="avatar-img" src="" alt="Profile Picture">
           </div>
+          <input type="file" id="avatar-upload" accept="image/*" style="display:none">
         </div>
-        <h1 class="name">{{NAME}}</h1>
-        <p class="title">{{TITLE}}</p>
-        <p class="company">{{COMPANY}}</p>
-        <p class="tagline">"{{TAGLINE}}"</p>
+        <h1 class="name" id="name">Your Name</h1>
+        <p class="title" id="title">Your Title</p>
+        <p class="company" id="company">Company Name</p>
+        <p class="tagline" id="tagline">"Your Tagline"</p>
       </div>
 
       <!-- Contact Section -->
       <div class="section-header">Contact :</div>
       <div class="section-content">
         <div class="action-grid four-col">
-          <a href="tel:" id="call" class="action-item">
-            <div class="icon-box">
-              <i class="fas fa-phone"></i>
-            </div>
-            <span>Call</span>
+          <a href="#" id="call" class="action-item">
+            <div class="icon-box"><i class="fas fa-phone"></i></div><span>Call</span>
           </a>
-          <a href="" id="whatsapp" target="_blank" rel="noopener noreferrer" class="action-item">
-            <div class="icon-box">
-              <i class="fab fa-whatsapp"></i>
-            </div>
-            <span>WhatsApp</span>
+          <a href="#" id="whatsapp" target="_blank" rel="noopener noreferrer" class="action-item">
+            <div class="icon-box"><i class="fab fa-whatsapp"></i></div><span>WhatsApp</span>
           </a>
-          <a href="mailto:" id="email" class="action-item">
-            <div class="icon-box">
-              <i class="fas fa-envelope"></i>
-            </div>
-            <span>Email</span>
+          <a href="#" id="email" class="action-item">
+            <div class="icon-box"><i class="fas fa-envelope"></i></div><span>Email</span>
           </a>
           <label for="pay-modal" id="upi" class="action-item">
-            <div class="icon-box">
-              <i class="fas fa-qrcode"></i>
-            </div>
-            <span>Pay Me</span>
+            <div class="icon-box"><i class="fas fa-qrcode"></i></div><span>Pay Me</span>
           </label>
         </div>
         <div class="action-grid three-col">
-          <a href="" id="save-contact" class="action-item">
-            <div class="icon-box">
-              <i class="fas fa-download"></i>
-            </div>
-            <span>Save Me</span>
+          <a href="#" id="save-contact" class="action-item">
+            <div class="icon-box"><i class="fas fa-download"></i></div><span>Save Me</span>
           </a>
           <div id="share" class="action-item">
-            <div class="icon-box">
-              <i class="fas fa-share-alt"></i>
-            </div>
-            <span>Share</span>
+            <div class="icon-box"><i class="fas fa-share-alt"></i></div><span>Share</span>
           </div>
-          <a href="" id="location" target="_blank" rel="noopener noreferrer" class="action-item">
-            <div class="icon-box">
-              <i class="fas fa-map-marker-alt"></i>
-            </div>
-            <span>Location</span>
+          <a href="#" id="location" target="_blank" rel="noopener noreferrer" class="action-item">
+            <div class="icon-box"><i class="fas fa-map-marker-alt"></i></div><span>Location</span>
           </a>
         </div>
       </div>
@@ -90,28 +65,16 @@
       <div class="section-content">
         <div class="action-grid four-col">
           <label for="about-modal" id="about" class="action-item">
-            <div class="icon-box">
-              <i class="fas fa-user"></i>
-            </div>
-            <span>About Me</span>
+            <div class="icon-box"><i class="fas fa-user"></i></div><span>About Me</span>
           </label>
           <label for="skills-modal" id="skills" class="action-item">
-            <div class="icon-box">
-              <i class="fas fa-briefcase"></i>
-            </div>
-            <span>Skills</span>
+            <div class="icon-box"><i class="fas fa-briefcase"></i></div><span>Skills</span>
           </label>
           <label for="milestones-modal" id="milestones" class="action-item">
-            <div class="icon-box">
-              <i class="fas fa-trophy"></i>
-            </div>
-            <span>Milestone</span>
+            <div class="icon-box"><i class="fas fa-trophy"></i></div><span>Milestone</span>
           </label>
           <label for="testimonials-modal" id="testimonials" class="action-item">
-            <div class="icon-box">
-              <i class="fas fa-users"></i>
-            </div>
-            <span>Testimony</span>
+            <div class="icon-box"><i class="fas fa-users"></i></div><span>Testimony</span>
           </label>
         </div>
       </div>
@@ -121,28 +84,16 @@
       <div class="section-content">
         <div class="action-grid four-col">
           <label for="company-modal" id="company-info" class="action-item">
-            <div class="icon-box">
-              <i class="fas fa-building"></i>
-            </div>
-            <span>Company</span>
+            <div class="icon-box"><i class="fas fa-building"></i></div><span>Company</span>
           </label>
           <label for="products-modal" id="products" class="action-item">
-            <div class="icon-box">
-              <i class="fas fa-box"></i>
-            </div>
-            <span>Products</span>
+            <div class="icon-box"><i class="fas fa-box"></i></div><span>Products</span>
           </label>
-          <a href="" id="website" target="_blank" rel="noopener noreferrer" class="action-item">
-            <div class="icon-box">
-              <i class="fas fa-globe"></i>
-            </div>
-            <span>Website</span>
+          <a href="#" id="website" target="_blank" rel="noopener noreferrer" class="action-item">
+            <div class="icon-box"><i class="fas fa-globe"></i></div><span>Website</span>
           </a>
-          <a href="" id="company-location" target="_blank" rel="noopener noreferrer" class="action-item">
-            <div class="icon-box">
-              <i class="fas fa-map-marker-alt"></i>
-            </div>
-            <span>Location</span>
+          <a href="#" id="company-location" target="_blank" rel="noopener noreferrer" class="action-item">
+            <div class="icon-box"><i class="fas fa-map-marker-alt"></i></div><span>Location</span>
           </a>
         </div>
       </div>
@@ -150,125 +101,17 @@
       <!-- Follow Me Section -->
       <div class="section-header">Follow Me :</div>
       <div class="section-content social-section">
-        <div class="social-icons">
-          <a href="" id="facebook" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="Facebook">
-            <i class="fab fa-facebook-f"></i>
-          </a>
-          <a href="" id="twitter" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="Twitter">
-            <i class="fab fa-twitter"></i>
-          </a>
-          <a href="" id="instagram" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="Instagram">
-            <i class="fab fa-instagram"></i>
-          </a>
-          <a href="" id="linkedin" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="LinkedIn">
-            <i class="fab fa-linkedin-in"></i>
-          </a>
-          <a href="" id="youtube" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="YouTube">
-            <i class="fab fa-youtube"></i>
-          </a>
-          <a href="" id="tiktok" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="TikTok">
-            <i class="fab fa-tiktok"></i>
-          </a>
-          <a href="" id="pinterest" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="Pinterest">
-            <i class="fab fa-pinterest"></i>
-          </a>
-          <a href="" id="telegram" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="Telegram">
-            <i class="fab fa-telegram"></i>
-          </a>
+        <div class="social-icons" id="social-links">
+          <!-- Social links injected via JS -->
         </div>
       </div>
 
-      <!-- Footer -->
       <footer class="card-footer">
         <p>Powered by Premium NFC Cards</p>
       </footer>
     </div>
   </div>
 
-  <!-- Pay Me Modal -->
-  <input type="checkbox" id="pay-modal" class="modal-toggle">
-  <div class="modal-overlay">
-    <div class="modal-content">
-      <label for="pay-modal" class="modal-close">&times;</label>
-      <h3>Scan to Pay</h3>
-      <div class="qr-code" id="upi-qr">
-        <i class="fas fa-qrcode"></i>
-      </div>
-      <p>{{NAME}}</p>
-      <p class="modal-subtitle">Scan the QR code to make a payment</p>
-    </div>
-  </div>
-
-  <!-- About Me Modal -->
-  <input type="checkbox" id="about-modal" class="modal-toggle">
-  <div class="modal-overlay">
-    <div class="modal-content modal-large">
-      <label for="about-modal" class="modal-close">&times;</label>
-      <h3><i class="fas fa-user"></i> About Me</h3>
-      <div class="modal-body" id="about-content">
-        <!-- Content injected by worker -->
-      </div>
-    </div>
-  </div>
-
-  <!-- Skills Modal -->
-  <input type="checkbox" id="skills-modal" class="modal-toggle">
-  <div class="modal-overlay">
-    <div class="modal-content modal-large">
-      <label for="skills-modal" class="modal-close">&times;</label>
-      <h3><i class="fas fa-briefcase"></i> Skills & Expertise</h3>
-      <div class="modal-body" id="skills-content">
-        <!-- Content injected by worker -->
-      </div>
-    </div>
-  </div>
-
-  <!-- Milestones Modal -->
-  <input type="checkbox" id="milestones-modal" class="modal-toggle">
-  <div class="modal-overlay">
-    <div class="modal-content modal-large">
-      <label for="milestones-modal" class="modal-close">&times;</label>
-      <h3><i class="fas fa-trophy"></i> Milestones & Achievements</h3>
-      <div class="modal-body" id="milestones-content">
-        <!-- Content injected by worker -->
-      </div>
-    </div>
-  </div>
-
-  <!-- Testimonials Modal -->
-  <input type="checkbox" id="testimonials-modal" class="modal-toggle">
-  <div class="modal-overlay">
-    <div class="modal-content modal-large">
-      <label for="testimonials-modal" class="modal-close">&times;</label>
-      <h3><i class="fas fa-users"></i> Testimonials</h3>
-      <div class="modal-body" id="testimonials-content">
-        <!-- Content injected by worker -->
-      </div>
-    </div>
-  </div>
-
-  <!-- Company Modal -->
-  <input type="checkbox" id="company-modal" class="modal-toggle">
-  <div class="modal-overlay">
-    <div class="modal-content modal-large">
-      <label for="company-modal" class="modal-close">&times;</label>
-      <h3><i class="fas fa-building"></i> {{COMPANY}}</h3>
-      <div class="modal-body" id="company-desc-content">
-        <!-- Content injected by worker -->
-      </div>
-    </div>
-  </div>
-
-  <!-- Products Modal -->
-  <input type="checkbox" id="products-modal" class="modal-toggle">
-  <div class="modal-overlay">
-    <div class="modal-content modal-large">
-      <label for="products-modal" class="modal-close">&times;</label>
-      <h3><i class="fas fa-box"></i> Products & Services</h3>
-      <div class="modal-body" id="products-content">
-        <!-- Content injected by worker -->
-      </div>
-    </div>
-  </div>
+  <script src="script.js"></script>
 </body>
 </html>
