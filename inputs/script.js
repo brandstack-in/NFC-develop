@@ -8,10 +8,10 @@ document.addEventListener('DOMContentLoaded', function () {
   const logoPreview = document.getElementById('logo-preview');
   const submitBtn = document.querySelector('.submit-btn');
 
-  // 🔴 CHANGE THIS TO YOUR REAL CLOUDFLARE WORKER URL
+  // 🔴 CHANGE THIS
   const API_BASE = 'https://nfc-develop.data-brandstack.workers.dev';
 
-  /* ================= FILE PREVIEWS ================= */
+  /* ================= FILE PREVIEW ================= */
 
   photoInput?.addEventListener('change', (e) => {
     handleFilePreview(e.target, photoPreview);
@@ -63,8 +63,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
       const response = await fetch(`${API_BASE}/api/update`, {
         method: 'POST',
-        body: formData,
+        body: formData
       });
+
+      const contentType = response.headers.get('content-type');
+
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await response.text();
+        throw new Error(
+          'Invalid server response:\n' + text.slice(0, 150)
+        );
+      }
 
       const result = await response.json();
 
@@ -76,14 +85,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
       setTimeout(() => {
         const cardUrl = `${API_BASE}/${cardId}`;
-        if (confirm(`Card updated!\n\nView your card now?`)) {
+        if (confirm('Card updated!\n\nView your card now?')) {
           window.open(cardUrl, '_blank');
         }
       }, 800);
 
-    } catch (err) {
-      console.error(err);
-      showNotification(`❌ ${err.message}`, 'error');
+    } catch (error) {
+      console.error('Submit error:', error);
+      showNotification(`❌ ${error.message}`, 'error');
     } finally {
       submitBtn.disabled = false;
       submitBtn.textContent = '💾 Save & Update Card';
@@ -95,11 +104,11 @@ document.addEventListener('DOMContentLoaded', function () {
   function showNotification(message, type) {
     document.querySelector('.notification')?.remove();
 
-    const n = document.createElement('div');
-    n.className = `notification notification-${type}`;
-    n.textContent = message;
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.textContent = message;
 
-    n.style.cssText = `
+    notification.style.cssText = `
       position: fixed;
       top: 20px;
       right: 20px;
@@ -114,24 +123,24 @@ document.addEventListener('DOMContentLoaded', function () {
       animation: slideIn 0.3s ease;
     `;
 
-    document.body.appendChild(n);
+    document.body.appendChild(notification);
 
     setTimeout(() => {
-      n.style.animation = 'slideOut 0.3s ease';
-      setTimeout(() => n.remove(), 300);
+      notification.style.animation = 'slideOut 0.3s ease';
+      setTimeout(() => notification.remove(), 300);
     }, 5000);
   }
 
   /* ================= HELPERS ================= */
 
-  // Auto-format phone inputs
+  // Phone formatting
   document.querySelectorAll('input[type="tel"]').forEach((input) => {
     input.addEventListener('input', function () {
       this.value = this.value.replace(/[^\d+\-\s()]/g, '');
     });
   });
 
-  // Auto-fix URLs
+  // URL normalization
   document.querySelectorAll('input[type="url"]').forEach((input) => {
     input.addEventListener('blur', function () {
       const v = this.value.trim();
@@ -141,7 +150,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
-  // Inject animations
+  // Animations
   const style = document.createElement('style');
   style.textContent = `
     @keyframes slideIn {
