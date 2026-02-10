@@ -1,124 +1,135 @@
-// ================= USER DATA =================
-const userData = {
-  name: "John Doe",
-  title: "Software Engineer",
-  company: "Tech Corp",
-  tagline: "Innovating the Future",
-  phone: "+1234567890",
-  email: "john@example.com",
-  whatsapp: "+1234567890",
-  website: "https://example.com",
-  location: "https://goo.gl/maps/xyz",
-  social: {
-    facebook: "https://facebook.com/john",
-    twitter: "https://twitter.com/john",
-    instagram: "https://instagram.com/john",
-    linkedin: "https://linkedin.com/in/john",
-    youtube: "",
-    tiktok: "",
-    pinterest: "",
-    telegram: ""
-  },
-  about: "I am a software engineer with 5 years of experience in building scalable web applications...",
-  skills: ["JavaScript", "HTML", "CSS", "React", "Node.js"],
-  milestones: ["Launched App X", "Awarded Employee of the Year", "Built scalable SaaS platform"],
-  testimonials: ["Great work!", "Highly professional!", "Amazing problem solver!"],
-  products: ["App X", "Service Y", "Premium NFC Cards"],
-  payQR: "" // base64 QR code string or image URL
-};
+// Premium NFC Card - Form Handler Script
 
-// ================= AVATAR UPLOAD =================
-const avatar = document.getElementById('avatar');
-avatar.addEventListener('click', () => {
-  const input = document.createElement('input');
-  input.type = "file";
-  input.accept = "image/*";
-  input.onchange = e => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      avatar.innerHTML = `<img src="${reader.result}" alt="Avatar" />`;
-    };
-    reader.readAsDataURL(file);
-  };
-  input.click();
-});
+document.addEventListener('DOMContentLoaded', function() {
+  const form = document.getElementById('nfc-form');
+  const photoInput = document.getElementById('photo');
+  const logoInput = document.getElementById('logo');
+  const photoPreview = document.getElementById('photo-preview');
+  const logoPreview = document.getElementById('logo-preview');
+  const submitBtn = document.querySelector('.submit-btn');
 
-// ================= POPULATE PROFILE =================
-function populateProfile() {
-  document.querySelector('.name').textContent = userData.name;
-  document.querySelector('.title').textContent = userData.title;
-  document.querySelector('.company').textContent = userData.company;
-  document.querySelector('.tagline').textContent = `"${userData.tagline}"`;
+  // File preview handlers
+  if (photoInput && photoPreview) {
+    photoInput.addEventListener('change', function(e) {
+      handleFilePreview(e.target, photoPreview);
+    });
+  }
 
-  document.getElementById('call').href = `tel:${userData.phone}`;
-  document.getElementById('email').href = `mailto:${userData.email}`;
-  document.getElementById('whatsapp').href = `https://wa.me/${userData.whatsapp.replace(/\D/g,'')}`;
-  document.getElementById('location').href = userData.location;
-  document.getElementById('website').href = userData.website;
-  document.getElementById('company-location').href = userData.location;
+  if (logoInput && logoPreview) {
+    logoInput.addEventListener('change', function(e) {
+      handleFilePreview(e.target, logoPreview);
+    });
+  }
 
-  // Social Links
-  Object.entries(userData.social).forEach(([key, url]) => {
-    const el = document.getElementById(key);
-    if (el) el.href = url || "#";
+  function handleFilePreview(input, previewElement) {
+    const file = input.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        previewElement.src = e.target.result;
+        previewElement.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    } else {
+      previewElement.style.display = 'none';
+      previewElement.src = '';
+    }
+  }
+
+  // Form submission handler
+  if (form) {
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const cardIdInput = document.getElementById('card_id');
+      const cardId = cardIdInput ? cardIdInput.value.trim() : '';
+      if (!cardId) {
+        showNotification('Please enter a Card ID', 'error');
+        return;
+      }
+
+      const nameInput = document.getElementById('name');
+      const name = nameInput ? nameInput.value.trim() : '';
+      if (!name) {
+        showNotification('Please enter your name', 'error');
+        return;
+      }
+
+      // Disable button and show loading state
+      submitBtn.disabled = true;
+      submitBtn.textContent = '⏳ Saving...';
+
+      try {
+        const formData = new FormData(form);
+        
+        // Send to API
+        const response = await fetch('/api/update', {
+          method: 'POST',
+          body: formData
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+          showNotification('✅ Card updated successfully!', 'success');
+          
+          // Show link to view card
+          const cardUrl = `/${cardId}`;
+          setTimeout(() => {
+            if (confirm(`Card updated! View your card at ${window.location.origin}${cardUrl}?`)) {
+              window.open(cardUrl, '_blank');
+            }
+          }, 1000);
+        } else {
+          throw new Error(result.error || 'Failed to update card');
+        }
+      } catch (error) {
+        console.error('Submit error:', error);
+        showNotification(`❌ Error: ${error.message}`, 'error');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = '💾 Save & Update Card';
+      }
+    });
+  }
+
+  // Notification helper
+  function showNotification(message, type) {
+    // Remove existing notification
+    const existing = document.querySelector('.notification');
+    if (existing) existing.remove();
+
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.textContent = message;
+    notification.style.animation = 'slideIn 0.3s ease forwards';
+
+    document.body.appendChild(notification);
+
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+      notification.style.animation = 'slideOut 0.3s ease forwards';
+      setTimeout(() => notification.remove(), 300);
+    }, 5000);
+  }
+
+  // Auto-format phone numbers
+  const phoneInputs = document.querySelectorAll('input[type="tel"]');
+  phoneInputs.forEach(input => {
+    input.addEventListener('input', function(e) {
+      // Allow only numbers, +, -, spaces, and parentheses
+      this.value = this.value.replace(/[^\d+\-\s()]/g, '');
+    });
   });
 
-  // Modals content
-  document.getElementById('about-content').textContent = userData.about;
-  document.getElementById('skills-content').innerHTML = userData.skills.map(s => `<li>${s}</li>`).join('');
-  document.getElementById('milestones-content').innerHTML = userData.milestones.map(m => `<li>${m}</li>`).join('');
-  document.getElementById('testimonials-content').innerHTML = userData.testimonials.map(t => `<p>"${t}"</p>`).join('');
-  document.getElementById('company-desc-content').textContent = `Welcome to ${userData.company}, we provide premium services and products.`;
-  document.getElementById('products-content').innerHTML = userData.products.map(p => `<li>${p}</li>`).join('');
-
-  // Pay QR
-  const qrEl = document.getElementById('upi-qr');
-  if (userData.payQR) qrEl.innerHTML = `<img src="${userData.payQR}" alt="Pay QR" />`;
-}
-
-populateProfile();
-
-// ================= VCF DOWNLOAD =================
-document.getElementById('save-contact').addEventListener('click', () => {
-  const vcf = `BEGIN:VCARD
-VERSION:3.0
-FN:${userData.name}
-ORG:${userData.company}
-TITLE:${userData.title}
-TEL;TYPE=CELL:${userData.phone}
-EMAIL:${userData.email}
-END:VCARD`;
-  const blob = new Blob([vcf], {type: 'text/vcard'});
-  const link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  link.download = `${userData.name}.vcf`;
-  link.click();
-  URL.revokeObjectURL(link.href);
-});
-
-// ================= SHARE =================
-document.getElementById('share').addEventListener('click', async () => {
-  if (navigator.share) {
-    try {
-      await navigator.share({
-        title: userData.name,
-        text: userData.tagline,
-        url: window.location.href
-      });
-    } catch (err) {
-      alert("Sharing cancelled");
-    }
-  } else {
-    alert("Web Share API not supported on this device.");
-  }
-});
-
-// ================= MODAL CLOSE FIX =================
-document.querySelectorAll('.modal-close').forEach(closeBtn => {
-  closeBtn.addEventListener('click', () => {
-    const modal = closeBtn.closest('.modal-overlay').previousElementSibling;
-    if (modal && modal.checked) modal.checked = false;
+  // URL validation helper for social links
+  const urlInputs = document.querySelectorAll('input[type="url"]');
+  urlInputs.forEach(input => {
+    input.addEventListener('blur', function() {
+      const value = this.value.trim();
+      if (value && !value.startsWith('http://') && !value.startsWith('https://')) {
+        this.value = 'https://' + value;
+      }
+    });
   });
 });
