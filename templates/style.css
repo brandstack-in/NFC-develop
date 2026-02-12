@@ -311,7 +311,7 @@ body {
   padding: 20px;
 }
 
-.modal-toggle:checked ~ .modal-overlay {
+.modal-toggle:checked + .modal-overlay {
   opacity: 1;
   visibility: visible;
 }
@@ -337,7 +337,7 @@ body {
   text-align: left;
 }
 
-.modal-toggle:checked ~ .modal-overlay .modal-content {
+.modal-toggle:checked + .modal-overlay .modal-content {
   transform: scale(1) translateY(0);
 }
 
