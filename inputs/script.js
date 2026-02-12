@@ -1,124 +1,128 @@
-// ================= USER DATA =================
-const userData = {
-  name: "John Doe",
-  title: "Software Engineer",
-  company: "Tech Corp",
-  tagline: "Innovating the Future",
-  phone: "+1234567890",
-  email: "john@example.com",
-  whatsapp: "+1234567890",
-  website: "https://example.com",
-  location: "https://goo.gl/maps/xyz",
-  social: {
-    facebook: "https://facebook.com/john",
-    twitter: "https://twitter.com/john",
-    instagram: "https://instagram.com/john",
-    linkedin: "https://linkedin.com/in/john",
-    youtube: "",
-    tiktok: "",
-    pinterest: "",
-    telegram: ""
-  },
-  about: "I am a software engineer with 5 years of experience in building scalable web applications...",
-  skills: ["JavaScript", "HTML", "CSS", "React", "Node.js"],
-  milestones: ["Launched App X", "Awarded Employee of the Year", "Built scalable SaaS platform"],
-  testimonials: ["Great work!", "Highly professional!", "Amazing problem solver!"],
-  products: ["App X", "Service Y", "Premium NFC Cards"],
-  payQR: "" // base64 QR code string or image URL
-};
+// Premium NFC Card - Input Form Handler
+const API_URL = "https://nfc-develop.data-brandstack.workers.dev/api/update";
+const AUTH_TOKEN = "3f7c1e9a-6c2b-4b5e-9d44-91c2c0a6b9fd";
 
-// ================= AVATAR UPLOAD =================
-const avatar = document.getElementById('avatar');
-avatar.addEventListener('click', () => {
-  const input = document.createElement('input');
-  input.type = "file";
-  input.accept = "image/*";
-  input.onchange = e => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      avatar.innerHTML = `<img src="${reader.result}" alt="Avatar" />`;
-    };
-    reader.readAsDataURL(file);
-  };
-  input.click();
-});
+document.addEventListener("DOMContentLoaded", function () {
+  const form = document.getElementById("nfc-form");
+  const photoInput = document.getElementById("photo");
+  const logoInput = document.getElementById("logo");
+  const photoPreview = document.getElementById("photo-preview");
+  const logoPreview = document.getElementById("logo-preview");
+  const submitBtn = document.querySelector(".submit-btn");
 
-// ================= POPULATE PROFILE =================
-function populateProfile() {
-  document.querySelector('.name').textContent = userData.name;
-  document.querySelector('.title').textContent = userData.title;
-  document.querySelector('.company').textContent = userData.company;
-  document.querySelector('.tagline').textContent = `"${userData.tagline}"`;
-
-  document.getElementById('call').href = `tel:${userData.phone}`;
-  document.getElementById('email').href = `mailto:${userData.email}`;
-  document.getElementById('whatsapp').href = `https://wa.me/${userData.whatsapp.replace(/\D/g,'')}`;
-  document.getElementById('location').href = userData.location;
-  document.getElementById('website').href = userData.website;
-  document.getElementById('company-location').href = userData.location;
-
-  // Social Links
-  Object.entries(userData.social).forEach(([key, url]) => {
-    const el = document.getElementById(key);
-    if (el) el.href = url || "#";
-  });
-
-  // Modals content
-  document.getElementById('about-content').textContent = userData.about;
-  document.getElementById('skills-content').innerHTML = userData.skills.map(s => `<li>${s}</li>`).join('');
-  document.getElementById('milestones-content').innerHTML = userData.milestones.map(m => `<li>${m}</li>`).join('');
-  document.getElementById('testimonials-content').innerHTML = userData.testimonials.map(t => `<p>"${t}"</p>`).join('');
-  document.getElementById('company-desc-content').textContent = `Welcome to ${userData.company}, we provide premium services and products.`;
-  document.getElementById('products-content').innerHTML = userData.products.map(p => `<li>${p}</li>`).join('');
-
-  // Pay QR
-  const qrEl = document.getElementById('upi-qr');
-  if (userData.payQR) qrEl.innerHTML = `<img src="${userData.payQR}" alt="Pay QR" />`;
-}
-
-populateProfile();
-
-// ================= VCF DOWNLOAD =================
-document.getElementById('save-contact').addEventListener('click', () => {
-  const vcf = `BEGIN:VCARD
-VERSION:3.0
-FN:${userData.name}
-ORG:${userData.company}
-TITLE:${userData.title}
-TEL;TYPE=CELL:${userData.phone}
-EMAIL:${userData.email}
-END:VCARD`;
-  const blob = new Blob([vcf], {type: 'text/vcard'});
-  const link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  link.download = `${userData.name}.vcf`;
-  link.click();
-  URL.revokeObjectURL(link.href);
-});
-
-// ================= SHARE =================
-document.getElementById('share').addEventListener('click', async () => {
-  if (navigator.share) {
-    try {
-      await navigator.share({
-        title: userData.name,
-        text: userData.tagline,
-        url: window.location.href
-      });
-    } catch (err) {
-      alert("Sharing cancelled");
-    }
-  } else {
-    alert("Web Share API not supported on this device.");
+if (photoInput && photoPreview) {
+    photoInput.addEventListener("change", () => previewFile(photoInput, photoPreview));
   }
-});
+  if (logoInput && logoPreview) {
+    logoInput.addEventListener("change", () => previewFile(logoInput, logoPreview));
+  }
 
-// ================= MODAL CLOSE FIX =================
-document.querySelectorAll('.modal-close').forEach(closeBtn => {
-  closeBtn.addEventListener('click', () => {
-    const modal = closeBtn.closest('.modal-overlay').previousElementSibling;
-    if (modal && modal.checked) modal.checked = false;
+
+
+  function previewFile(input, img) {
+    const file = input.files[0];
+    if (!file) { img.style.display = "none"; return; }
+    const reader = new FileReader();
+    reader.onload = (e) => { img.src = e.target.result; img.style.display = "block"; };
+    reader.readAsDataURL(file);
+  }
+  function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+      if (!file) return resolve("");
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+  // Form submit
+  if (form) {
+    form.addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const cardId = form.querySelector('[name="card_id"]')?.value.trim();
+      const name = form.querySelector('[name="name"]')?.value.trim();
+      if (!cardId) return showNotification("Please enter a Card ID", "error");
+      if (!name) return showNotification("Please enter your name", "error");
+      submitBtn.disabled = true;
+      submitBtn.textContent = "⏳ Saving...";
+      try {
+        // Build JSON payload from form fields
+        const payload = { cardId, name };
+        const textFields = [
+          "title", "company", "tagline", "phone", "whatsapp", "email",
+          "location", "upi", "about", "skills", "milestones", "testimonials",
+          "company_desc", "products", "website", "company_location",
+          "facebook", "instagram", "twitter", "linkedin",
+          "youtube", "tiktok", "pinterest", "telegram"
+        ];
+        textFields.forEach((field) => {
+          const el = form.querySelector(`[name="${field}"]`);
+          if (el && el.value.trim()) payload[field] = el.value.trim();
+        });
+        // Convert photo to base64
+        const photoFile = photoInput?.files[0];
+        if (photoFile) {
+          payload.photo = await fileToBase64(photoFile);
+        }
+        // Convert logo to base64
+        const logoFile = logoInput?.files[0];
+        if (logoFile) {
+          payload.logo = await fileToBase64(logoFile);
+        }
+        const response = await fetch(API_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${AUTH_TOKEN}`
+          },
+          body: JSON.stringify(payload)
+        });
+        const result = await response.json();
+        if (response.ok && result.success) {
+          showNotification("✅ Card updated successfully!", "success");
+          setTimeout(() => {
+            const viewUrl = `https://nfc-develop.data-brandstack.workers.dev/u/${cardId}`;
+            if (confirm(`Card updated! View your card at ${viewUrl}?`)) {
+              window.open(viewUrl, "_blank");
+            }
+          }, 1000);
+        } else {
+          throw new Error(result.error || "Failed to update card");
+        }
+      } catch (err) {
+        console.error("Submit error:", err);
+        showNotification(`❌ Error: ${err.message}`, "error");
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "💾 Save & Update Card";
+      }
+    });
+  }
+  // Notification
+  function showNotification(message, type) {
+    const existing = document.querySelector(".notification");
+    if (existing) existing.remove();
+    const el = document.createElement("div");
+    el.className = `notification notification-${type}`;
+    el.textContent = message;
+    el.style.cssText = "position:fixed;top:20px;right:20px;padding:16px 24px;border-radius:8px;z-index:9999;font-family:Montserrat,sans-serif;font-size:14px;color:#fff;background:" + (type === "error" ? "#e74c3c" : "#27ae60") + ";box-shadow:0 4px 12px rgba(0,0,0,0.15);animation:slideIn .3s ease";
+    document.body.appendChild(el);
+    setTimeout(() => { el.remove(); }, 5000);
+  }
+  // Auto-format phone
+  document.querySelectorAll('input[type="tel"]').forEach((input) => {
+    input.addEventListener("input", function () {
+      this.value = this.value.replace(/[^\d+\-\s()]/g, "");
+    });
+  });
+  // Auto-prefix URLs
+  document.querySelectorAll('input[type="url"]').forEach((input) => {
+    input.addEventListener("blur", function () {
+      const v = this.value.trim();
+      if (v && !v.startsWith("http://") && !v.startsWith("https://")) {
+        this.value = "https://" + v;
+      }
+    });
   });
 });
+  
