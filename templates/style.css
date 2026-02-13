@@ -656,6 +656,10 @@ body {
   }
   
   .modal-overlay {
-    display: none;
-  }
+  pointer-events: none;
+}
+
+.modal-toggle:checked + .modal-overlay {
+  pointer-events: auto;
+}
 }
