@@ -278,15 +278,28 @@ body {
   padding: 20px;
   border-top: 1px solid var(--border);
   background: rgba(0, 0, 0, 0.2);
+  position: relative;
+  z-index: 10;
 }
 
 .card-footer p {
   font-size: 11px;
   color: var(--muted);
-  opacity: 0.6;
   letter-spacing: 0.5px;
 }
 
+.footer-link {
+  color: var(--gold);
+  text-decoration: none;
+  font-weight: 500;
+  opacity: 1;
+  transition: all 0.3s ease;
+}
+
+.footer-link:hover {
+  color: var(--gold-light);
+  text-decoration: underline;
+}
 /* Modal Styles */
 .modal-toggle {
   display: none;
@@ -439,15 +452,6 @@ body {
   font-weight: 500;
 }
 
-.footer-link {
-  color: #d4af37;
-  text-decoration: none;
-  font-weight: 500;
-}
-
-.footer-link:hover {
-  text-decoration: underline;
-}
 /* Milestone List */
 .milestone-item {
   display: flex;
